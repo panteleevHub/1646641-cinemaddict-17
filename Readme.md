@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
 * Студент: [Виктор Пантелеев](https://up.htmlacademy.ru/ecmascript/17/user/1646641).
-* Наставник: `Неизвестно`.
+* Наставник: [Вадим Новаш](https://htmlacademy.ru/profile/stakeout).
 
 ---
 
