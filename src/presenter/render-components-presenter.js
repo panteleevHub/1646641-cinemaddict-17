@@ -12,9 +12,9 @@ import {render} from '../render.js';
 const FILMS_COUNT = 5;
 const FILMS_RANK_COUNT = 2;
 
-const body = document.querySelector('body');
+const body = document.body;
 
-export default class RenderingComponentsPresenter {
+export default class RenderComponentsPresenter {
   filmsContainer = new FilmsContainerView();
   filmsList = new FilmsListView();
   filmsListContainer = new FilmsListContainerView();
