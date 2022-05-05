@@ -91,14 +91,19 @@ const dates = [
 ];
 
 const commentsModel = new CommentsModel();
-const comments = [...commentsModel.getComments()];
+const comments = [...commentsModel.comments];
 
-const getRandomComments = () => comments.splice(0, getRandomInteger(0, comments.length - 1));
+const getIdOfRandomComments = () => {
+  const randomComments = comments.splice(0, getRandomInteger(0, comments.length - 1));
+  const idOfRandomComments = randomComments.map((comment) => comment.id);
+
+  return idOfRandomComments;
+};
 
 const generateFilmCardData = (element, index) => (
   {
     id: index,
-    comments: getRandomComments(),
+    comments: getIdOfRandomComments(),
     filmInfo: {
       title: getRandomArrayElement(titles),
       originalTitle: getRandomArrayElement(titles),
