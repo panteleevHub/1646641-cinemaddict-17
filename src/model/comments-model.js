@@ -1,9 +1,11 @@
 import {generateCommentData} from '../fish/comment.js';
 
-const COMMENTS_COUNT = 100;
+const COMMENTS_COUNT = 1000;
 
 export default class CommentsModel {
-  comments = Array.from({length: COMMENTS_COUNT}, generateCommentData);
+  #comments = Array.from({length: COMMENTS_COUNT}, generateCommentData);
 
-  getComments = () => this.comments;
+  get comments() {
+    return this.#comments;
+  }
 }

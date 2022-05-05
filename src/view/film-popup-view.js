@@ -1,14 +1,20 @@
 import {createElement} from '../render.js';
+import CommentsModel from '../model/comments-model.js';
 import {
   convertMinsToHours,
   convertReleaseDate,
   humanizeDate,
 } from '../util.js';
 
+const commentsModel = new CommentsModel();
+const commentsData = [...commentsModel.comments];
+
 const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
-  const {title, poster, totalRating, genres, description,
+  const {
+    title, poster, totalRating, genres, description,
     release, runtime, ageRating, originalTitle, director,
-    writers, actors} = filmInfo;
+    writers, actors
+  } = filmInfo;
 
   const {date, releaseCountry} = release;
   const {isWatchlist, isAlreadyWatched, isFavorite} = userDetails;
@@ -28,30 +34,28 @@ const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
     ? 'film-details__control-button--favorite'
     : 'film-details__control-button--favorite film-details__control-button--active';
 
-  const createListOfGenres = () => {
-    const filmGenres = [];
-    genres.forEach((genre) => {
-      filmGenres.push(`<span class="film-details__genre">${genre}</span>`);
-    });
+  const genresTerm = genres.length > 1 ? 'Genres' : 'Genre';
 
+  const createListOfGenres = () => {
+    const filmGenres = genres.map((genre) => `<span class="film-details__genre">${genre}</span>`);
     return filmGenres.join('\n');
   };
 
   const createListOfComments = () => {
-    const usersComments = [];
+    const filmComments = comments.map((comment) => {
 
-    comments.forEach((comment) => {
-      const humanizedDate = humanizeDate(comment.date);
+      const userComment = commentsData.find((elem) => elem.id === comment);
+      const humanizedDate = humanizeDate(userComment.date);
 
-      usersComments.push(
+      return (
         `<li class="film-details__comment">
           <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-${comment.emotion}">
+            <img src="./images/emoji/${userComment.emotion}.png" width="55" height="55" alt="emoji-${userComment.emotion}">
           </span>
           <div>
-            <p class="film-details__comment-text">${comment.comment}</p>
+            <p class="film-details__comment-text">${userComment.comment}</p>
             <p class="film-details__comment-info">
-              <span class="film-details__comment-author">${comment.author}</span>
+              <span class="film-details__comment-author">${userComment.author}</span>
               <span class="film-details__comment-day">${humanizedDate}</span>
               <button class="film-details__comment-delete">Delete</button>
             </p>
@@ -60,7 +64,7 @@ const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
       );
     });
 
-    return usersComments.join('\n');
+    return filmComments.join('\n');
   };
 
   return (
@@ -115,7 +119,7 @@ const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
                   <td class="film-details__cell">${releaseCountry}</td>
                 </tr>
                 <tr class="film-details__row">
-                  <td class="film-details__term">Genres</td>
+                  <td class="film-details__term">${genresTerm}</td>
                   <td class="film-details__cell">${createListOfGenres()}</tr>
               </table>
 
@@ -172,23 +176,26 @@ const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
 };
 
 export default class FilmPopupView {
+  #film = null;
+  #element = null;
+
   constructor(film) {
-    this.film = film;
+    this.#film = film;
   }
 
-  getTemplate() {
-    return createFilmPopupTemplate(this.film);
+  get template() {
+    return createFilmPopupTemplate(this.#film);
   }
 
-  getElement() {
-    if(!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if(!this.#element) {
+      this.#element = createElement(this.template);
     }
 
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }
