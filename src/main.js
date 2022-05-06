@@ -9,11 +9,11 @@ const siteMainElement = document.querySelector('.main');
 const siteHeaderElement = document.querySelector('.header');
 const statisticsContainerElement = document.querySelector('.footer__statistics');
 
-const renderComponentsPresenter = new RenderComponentsPresenter();
 const filmCardsModel = new FilmCardsModel();
+const renderComponentsPresenter = new RenderComponentsPresenter(siteMainElement, filmCardsModel);
 
 render(new FilterView(), siteMainElement);
 render(new UserRankView, siteHeaderElement);
 render(new StatisticsView(), statisticsContainerElement);
 
-renderComponentsPresenter.init(siteMainElement, filmCardsModel);
+renderComponentsPresenter.init();
