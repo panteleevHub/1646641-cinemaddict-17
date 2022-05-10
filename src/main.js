@@ -1,5 +1,5 @@
+import {render} from './framework/render.js';
 import FilterView from './view/filter-view.js';
-import {render} from './render.js';
 import UserRankView from './view/user-rank-view.js';
 import StatisticsView from './view/statistics-view.js';
 import RenderComponentsPresenter from './presenter/render-components-presenter.js';
