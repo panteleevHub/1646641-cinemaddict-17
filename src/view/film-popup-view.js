@@ -1,10 +1,12 @@
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import CommentsModel from '../model/comments-model.js';
 import {
   convertMinsToHours,
   convertReleaseDate,
   humanizeDate,
 } from '../util.js';
+
+const body = document.body;
 
 const commentsModel = new CommentsModel();
 const commentsData = [...commentsModel.comments];
@@ -175,11 +177,11 @@ const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
   );
 };
 
-export default class FilmPopupView {
+export default class FilmPopupView extends AbstractView {
   #film = null;
-  #element = null;
 
   constructor(film) {
+    super();
     this.#film = film;
   }
 
@@ -187,15 +189,24 @@ export default class FilmPopupView {
     return createFilmPopupTemplate(this.#film);
   }
 
-  get element() {
-    if(!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
+  openFilmPopup() {
+    body.classList.add('hide-overflow');
+    body.appendChild(this.element);
   }
 
-  removeElement() {
-    this.#element = null;
+  closeFilmPopup()  {
+    body.classList.remove('hide-overflow');
+    body.removeChild(body.querySelector('.film-details'));
   }
+
+  setClickHandler = (callback) => {
+    this._callback.click = callback;
+
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#onClosePopupClick);
+  };
+
+  #onClosePopupClick = (evt) => {
+    evt.preventDefault();
+    this._callback.click();
+  };
 }
