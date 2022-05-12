@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import FilmPopupView from '../view/film-popup-view.js';
-import {convertReleaseYear, convertMinsToHours} from '../util.js';
+import {convertReleaseYear, convertMinsToHours} from '../utils/date.js';
 
 const createFilmCardTemplate = ({filmInfo, comments, userDetails}) => {
   const {title, poster, totalRating, genres, description, release, runtime} = filmInfo;
@@ -10,16 +10,16 @@ const createFilmCardTemplate = ({filmInfo, comments, userDetails}) => {
   const filmRuntime = convertMinsToHours(runtime);
 
   const watchlistClassName = isWatchlist
-    ? 'film-card__controls-item--add-to-watchlist'
-    : 'film-card__controls-item--add-to-watchlist film-card__controls-item--active';
+    ? 'film-card__controls-item--add-to-watchlist film-card__controls-item--active'
+    : 'film-card__controls-item--add-to-watchlist';
 
   const alreadyWatchedClassName = isAlreadyWatched
-    ? 'film-card__controls-item--mark-as-watched'
-    : 'film-card__controls-item--mark-as-watched film-card__controls-item--active';
+    ? 'film-card__controls-item--mark-as-watched film-card__controls-item--active'
+    : 'film-card__controls-item--mark-as-watched';
 
   const favoriteClassName = isFavorite
-    ? 'film-card__controls-item--favorite'
-    : 'film-card__controls-item--favorite film-card__controls-item--active';
+    ? 'film-card__controls-item--favorite film-card__controls-item--active'
+    : 'film-card__controls-item--favorite';
 
   return (
     `<article class="film-card">
