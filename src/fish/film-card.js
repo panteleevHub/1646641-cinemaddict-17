@@ -3,7 +3,7 @@ import {
   getRandomPositiveFloat,
   getRandomArrayElement,
   getRandomLengthArray,
-} from '../util.js';
+} from '../utils/common.js';
 
 import CommentsModel from '../model/comments-model.js';
 

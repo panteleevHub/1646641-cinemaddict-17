@@ -4,7 +4,7 @@ import {
   convertMinsToHours,
   convertReleaseDate,
   humanizeDate,
-} from '../util.js';
+} from '../utils/date.js';
 
 const body = document.body;
 
@@ -25,22 +25,22 @@ const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
   const filmRuntime = convertMinsToHours(runtime);
 
   const watchlistClassName = isWatchlist
-    ? 'film-details__control-button--watchlist'
-    : 'film-details__control-button--watchlist film-details__control-button--active';
+    ? 'film-details__control-button--watchlist film-details__control-button--active'
+    : 'film-details__control-button--watchlist';
 
   const alreadyWatchedClassName = isAlreadyWatched
-    ? 'film-details__control-button--watched'
-    : 'film-details__control-button--watched film-details__control-button--active';
+    ? 'film-details__control-button--watched film-details__control-button--active'
+    : 'film-details__control-button--watched';
 
   const favoriteClassName = isFavorite
-    ? 'film-details__control-button--favorite'
-    : 'film-details__control-button--favorite film-details__control-button--active';
+    ? 'film-details__control-button--favorite film-details__control-button--active'
+    : 'film-details__control-button--favorite';
 
   const genresTerm = genres.length > 1 ? 'Genres' : 'Genre';
 
   const createListOfGenres = () => {
     const filmGenres = genres.map((genre) => `<span class="film-details__genre">${genre}</span>`);
-    return filmGenres.join('\n');
+    return filmGenres.join('');
   };
 
   const createListOfComments = () => {
@@ -66,7 +66,7 @@ const createFilmPopupTemplate = ({filmInfo, comments, userDetails}) => {
       );
     });
 
-    return filmComments.join('\n');
+    return filmComments.join('');
   };
 
   return (

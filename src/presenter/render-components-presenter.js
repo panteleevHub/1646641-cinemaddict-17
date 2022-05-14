@@ -27,6 +27,7 @@ export default class RenderComponentsPresenter {
   #showMoreButtonComponent = new ShowMoreButtonView();
 
   #filmCards = [];
+
   #renderedFilmsCount = FILMS_COUNT_PER_STEP;
 
   constructor(mainContainer, filmCardsModel) {
