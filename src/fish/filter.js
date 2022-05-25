@@ -1,17 +1,6 @@
-const FilterTypes = {
-  ALL: 'All',
-  WATCHLIST: 'Watchlist',
-  HISTORY: 'History',
-  FAVORITES: 'Favorites',
-};
+import {filter} from '../utils/filter.js';
 
-const filter = {
-  [FilterTypes.WATCHLIST]: (films) => films.filter(({userDetails}) => userDetails.isWatchlist),
-  [FilterTypes.HISTORY]: (films) => films.filter(({userDetails}) => userDetails.isAlreadyWatched),
-  [FilterTypes.FAVORITES]: (films) => films.filter(({userDetails}) => userDetails.isFavorite),
-};
-
-const generateFilterData = (films) => (
+export const generateFilterData = (films) => (
   Object.entries(filter).map(([filterName, filmsCount]) => (
     {
       name: filterName,
@@ -19,5 +8,3 @@ const generateFilterData = (films) => (
     }
   ))
 );
-
-export {generateFilterData};
