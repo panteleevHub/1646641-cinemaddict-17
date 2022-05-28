@@ -1,16 +1,12 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
 const createFilterTemplate = (filters) => {
-  const filtersTemplate = filters.map((filter) => {
-    const {name, count} = filter;
-
-    return (
-      `<a href="#${name.toLowerCase()}" class="main-navigation__item">
-        ${name}
-        <span class="main-navigation__item-count">${count}</span>
-      </a>`
-    );
-  }).join('');
+  const filtersTemplate = filters.map(({name, count}) => (
+    `<a href="#${name.toLowerCase()}" class="main-navigation__item">
+      ${name}
+      <span class="main-navigation__item-count">${count}</span>
+    </a>`
+  )).join('');
 
   return (
     `<nav class="main-navigation">
