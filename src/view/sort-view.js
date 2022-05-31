@@ -14,12 +14,12 @@ export default class SortView extends AbstractView {
     return createSortTemplate();
   }
 
-  setSortTypeChangeHandler = (callback) => {
+  setSortTypeClickHandler = (callback) => {
     this._callback.sortTypeChange = callback;
-    this.element.addEventListener('click', this.#onSortTypeChange);
+    this.element.addEventListener('click', this.#sortTypeClickHandler);
   };
 
-  #onSortTypeChange = (evt) => {
+  #sortTypeClickHandler = (evt) => {
     if (evt.target.tagName === 'A') {
       evt.preventDefault();
       this.#toggleSortTypes(evt);
@@ -27,7 +27,7 @@ export default class SortView extends AbstractView {
     }
   };
 
-  #toggleSortTypes = (evt) => {
+  #toggleSortTypes = ({target}) => {
     const sortButtons = this.element.querySelectorAll('.sort__button');
 
     for (const sortButton of sortButtons) {
@@ -35,6 +35,6 @@ export default class SortView extends AbstractView {
         sortButton.classList.remove('sort__button--active');
       }
     }
-    evt.target.classList.add('sort__button--active');
+    target.classList.add('sort__button--active');
   };
 }

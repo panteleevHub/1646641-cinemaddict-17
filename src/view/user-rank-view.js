@@ -11,11 +11,11 @@ const createUserRankTemplate = (filters) => {
     userRank = UserRank.NOVICE;
   }
 
-  if (filterHistory.count > NumberOfViewedFilms.AVERAGE && filterHistory.count <= NumberOfViewedFilms.HIGH) {
+  if (filterHistory.count > NumberOfViewedFilms.AVERAGE && filterHistory.count <= NumberOfViewedFilms.MAX) {
     userRank = UserRank.FAN;
   }
 
-  if (filterHistory.count > NumberOfViewedFilms.HIGH) {
+  if (filterHistory.count > NumberOfViewedFilms.MAX) {
     userRank = UserRank.MOVIE_BUFF;
   }
 

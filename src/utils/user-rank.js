@@ -7,7 +7,7 @@ const UserRank = {
 const NumberOfViewedFilms = {
   NONE: 0,
   AVERAGE: 10,
-  HIGH: 20,
+  MAX: 20,
 };
 
 export {UserRank, NumberOfViewedFilms};

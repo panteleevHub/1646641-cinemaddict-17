@@ -1,5 +1,4 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import FilmPopupView from '../view/film-popup-view.js';
 import {convertReleaseYear, convertMinsToHours} from '../utils/date.js';
 
 const createFilmCardTemplate = ({filmInfo, comments, userDetails}) => {
@@ -46,7 +45,6 @@ const createFilmCardTemplate = ({filmInfo, comments, userDetails}) => {
 
 export default class FilmCardView extends AbstractView {
   #film = null;
-  #filmPopupComponent = new FilmPopupView();
 
   constructor(film) {
     super();
@@ -60,52 +58,52 @@ export default class FilmCardView extends AbstractView {
   setFilmCardClickHandler = (callback) => {
     this._callback.cardClick = callback;
 
-    this.element.querySelector('.film-card__link').addEventListener('click', this.#onFilmCardClick);
+    this.element.querySelector('.film-card__link').addEventListener('click', this.#flmCardClickHandler);
   };
 
-  setWatchlistClickHandler = (callback) => {
+  setWatchlistButtonClickHandler = (callback) => {
     this._callback.watchlistClick = callback;
 
     this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener(
       'click',
-      this.#onWatchlistButtonClick
+      this.#watchlistButtonClickHandler
     );
   };
 
-  setHistoryClickHandler = (callback) => {
+  setHistoryButtonClickHandler = (callback) => {
     this._callback.historyClick = callback;
 
     this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener(
       'click',
-      this.#onHistoryButtonClick
+      this.#historyButtonClickHandler
     );
   };
 
-  setFavoriteClickHandler = (callback) => {
+  setFavoriteButtonClickHandler = (callback) => {
     this._callback.favoriteClick = callback;
 
     this.element.querySelector('.film-card__controls-item--favorite').addEventListener(
       'click',
-      this.#onFavoriteButtonClick
+      this.#favoriteButtonClickHandler
     );
   };
 
-  #onFilmCardClick = (evt) => {
+  #flmCardClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.cardClick();
   };
 
-  #onWatchlistButtonClick = (evt) => {
+  #watchlistButtonClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.watchlistClick();
   };
 
-  #onHistoryButtonClick = (evt) => {
+  #historyButtonClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.historyClick();
   };
 
-  #onFavoriteButtonClick = (evt) => {
+  #favoriteButtonClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick();
   };
