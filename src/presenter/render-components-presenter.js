@@ -86,7 +86,7 @@ export default class RenderComponentsPresenter {
 
   #renderSort = () => {
     render(this.#sortComponent, this.#mainContainer);
-    this.#sortComponent.setSortTypeChangeHandler(this.#onSortTypeChange);
+    this.#sortComponent.setSortTypeClickHandler(this.#sortTypeClickHandler);
   };
 
   #sortFilms = (sortType) => {
@@ -104,7 +104,7 @@ export default class RenderComponentsPresenter {
     this.#currentSortType = SortType;
   };
 
-  #onSortTypeChange = (sortType) => {
+  #sortTypeClickHandler = (sortType) => {
     if (this.#currentSortType !== sortType) {
       this.#sortFilms(sortType);
       this.#clearFilmsCards();
@@ -128,7 +128,7 @@ export default class RenderComponentsPresenter {
   };
 
   #renderFilmCard = (film, container) => {
-    const filmCardPresenter = new FilmCardPresenter(container, this.#onFilmCardChange, this.#onModeChange);
+    const filmCardPresenter = new FilmCardPresenter(container, this.#filmCardChangeHandler, this.#modeChangeHandler);
     filmCardPresenter.init(film);
 
     if (container === this.#topRatedFilmsListComponent.element) {
@@ -173,22 +173,22 @@ export default class RenderComponentsPresenter {
     remove(this.#showMoreButtonComponent);
   };
 
-  #onFilmCardChange = (updatedFilm) => {
+  #filmCardChangeHandler = (updatedFilm) => {
     this.#filmCards = updateItem(this.#filmCards, updatedFilm);
     this.#filmsPresenters.get(updatedFilm.id).init(updatedFilm);
   };
 
-  #onModeChange = () => {
+  #modeChangeHandler = () => {
     this.#filmsPresenters.forEach((presenter) => presenter.resetView());
   };
 
   #renderShowMoreButton = () => {
     render(this.#showMoreButtonComponent, this.#filmsListContainerComponent.element);
 
-    this.#showMoreButtonComponent.setClickHandler(this.#onShowMoreButtonClick);
+    this.#showMoreButtonComponent.setShowMoreButtonClickHandler(this.#showMoreButtonClickHandler);
   };
 
-  #onShowMoreButtonClick = () => {
+  #showMoreButtonClickHandler = () => {
     this.#renderFilmCards(this.#renderedFilmsCount, this.#renderedFilmsCount + FILMS_COUNT_PER_STEP, this.#filmCards, this.#filmsListComponent.element);
 
     this.#renderedFilmsCount += FILMS_COUNT_PER_STEP;

@@ -37,4 +37,9 @@ const generateCommentData = (element, index) => (
   }
 );
 
-export {generateCommentData};
+const localComment = {
+  'comment': null,
+  'emotion': null,
+};
+
+export {generateCommentData, localComment};

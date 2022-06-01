@@ -5,7 +5,8 @@ import FilmPopupView from '../view/film-popup-view.js';
 import FilmPopupFormView from '../view/film-popup-form-view.js';
 import CommentsModel from '../model/comments-model.js';
 import FilmPopupInfoView from '../view/film-popup-info-view.js';
-import FilmPopupCommentsView from '../view/film-popup-comments.js';
+import FilmPopupCommentsView from '../view/film-popup-comments-view.js';
+import {localComment} from '../fish/comment.js';
 
 const Mode = {
   DEFAULT: 'default',
@@ -28,6 +29,7 @@ export default class FilmCardPresenter {
 
   #commentsModel = new CommentsModel();
   #comments = [...this.#commentsModel.comments];
+  #localComment = localComment;
 
   constructor(container, changeData, changeMode) {
     this.#filmCardContainer = container;
@@ -45,16 +47,20 @@ export default class FilmCardPresenter {
     this.#filmPopupFormComponent = new FilmPopupFormView();
     this.#filmPopupInfoComponent = new FilmPopupInfoView(this.#filmCard);
     this.#filmPopupControlsComponent = new FilmPopupControlsView(this.#filmCard);
-    this.#filmPopupCommentsComponent = new FilmPopupCommentsView(this.#filmCard, this.#comments);
+    this.#filmPopupCommentsComponent = new FilmPopupCommentsView(
+      this.#filmCard,
+      this.#comments,
+      this.#localComment
+    );
 
     this.#filmCardComponent.setFilmCardClickHandler(this.#openFilmPopup);
-    this.#filmCardComponent.setWatchlistClickHandler(this.#onWatchlistButtonClick);
-    this.#filmCardComponent.setHistoryClickHandler(this.#onHistoryButtonClick);
-    this.#filmCardComponent.setFavoriteClickHandler(this.#onFavoriteButtonClick);
+    this.#filmCardComponent.setWatchlistButtonClickHandler(this.#watchlistButtonClickHandler);
+    this.#filmCardComponent.setHistoryButtonClickHandler(this.#historyButtonClickHandler);
+    this.#filmCardComponent.setFavoriteButtonClickHandler(this.#favoriteButtonClickHandler);
 
-    this.#filmPopupControlsComponent.setWatchlistClickHandler(this.#onWatchlistButtonClick);
-    this.#filmPopupControlsComponent.setHistoryClickHandler(this.#onHistoryButtonClick);
-    this.#filmPopupControlsComponent.setFavoriteClickHandler(this.#onFavoriteButtonClick);
+    this.#filmPopupControlsComponent.setWatchlistButtonClickHandler(this.#watchlistButtonClickHandler);
+    this.#filmPopupControlsComponent.setHistoryButtonClickHandler(this.#historyButtonClickHandler);
+    this.#filmPopupControlsComponent.setFavoriteButtonClickHandler(this.#favoriteButtonClickHandler);
 
     this.#filmPopupInfoComponent.setPopupClickHandler(this.#closeFilmPopup);
 
@@ -106,7 +112,7 @@ export default class FilmCardPresenter {
     render(this.#filmPopupCommentsComponent, this.#filmPopupFormComponent.element);
   };
 
-  #onEscKeyDown = (evt) => {
+  #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.#closeFilmPopup();
@@ -118,45 +124,44 @@ export default class FilmCardPresenter {
     this.#renderFilmPopupForm();
     this.#filmPopupComponent.openPopup();
 
-    document.addEventListener('keydown', this.#onEscKeyDown);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
 
     this.#mode = Mode.POPUP;
   };
 
   #closeFilmPopup = () => {
     this.#filmPopupComponent.closePopup();
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
+
+    this.#filmPopupCommentsComponent.resetState();
   };
 
-  #onWatchlistButtonClick = () => {
+  #watchlistButtonClickHandler = () => {
     this.#changeData({
       ...this.#filmCard,
       userDetails: {
+        ...this.#filmCard.userDetails,
         isWatchlist: !this.#filmCard.userDetails.isWatchlist,
-        isAlreadyWatched: this.#filmCard.userDetails.isAlreadyWatched,
-        isFavorite: this.#filmCard.userDetails.isFavorite,
       }
     });
   };
 
-  #onHistoryButtonClick = () => {
+  #historyButtonClickHandler = () => {
     this.#changeData({
       ...this.#filmCard,
       userDetails: {
-        isWatchlist: this.#filmCard.userDetails.isWatchlist,
+        ...this.#filmCard.userDetails,
         isAlreadyWatched: !this.#filmCard.userDetails.isAlreadyWatched,
-        isFavorite: this.#filmCard.userDetails.isFavorite,
       }
     });
   };
 
-  #onFavoriteButtonClick = () => {
+  #favoriteButtonClickHandler = () => {
     this.#changeData({
       ...this.#filmCard,
       userDetails: {
-        isWatchlist: this.#filmCard.userDetails.isWatchlist,
-        isAlreadyWatched: this.#filmCard.userDetails.isAlreadyWatched,
+        ...this.#filmCard.userDetails,
         isFavorite: !this.#filmCard.userDetails.isFavorite,
       }
     });

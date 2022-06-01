@@ -1,11 +1,15 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {humanizeDate} from '../utils/date.js';
 
-const createFilmPopupCommentsTemplate = ({comments}, commentsList) => {
-  const createListOfComments = () => {
-    const filmComments = comments.map((comment) => {
+const createFilmPopupCommentsTemplate = ({comments}, commentsList, {emotion}) => {
+  const emotionImage = emotion !== null
+    ? `<img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji">`
+    : '';
 
-      const userComment = commentsList.find((elem) => elem.id === comment);
+  const createListOfComments = () => {
+    const filmComments = comments.map((commentId) => {
+
+      const userComment = commentsList.find((elem) => elem.id === commentId);
       const humanizedDate = humanizeDate(userComment.date);
 
       return (
@@ -34,8 +38,11 @@ const createFilmPopupCommentsTemplate = ({comments}, commentsList) => {
         <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
         <ul class="film-details__comments-list">${createListOfComments()}</ul>
+
         <div class="film-details__new-comment">
-          <div class="film-details__add-emoji-label"></div>
+          <div class="film-details__add-emoji-label">
+            ${emotionImage}
+          </div>
 
           <label class="film-details__comment-label">
             <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
@@ -68,17 +75,59 @@ const createFilmPopupCommentsTemplate = ({comments}, commentsList) => {
   );
 };
 
-export default class FilmPopupCommentsView extends AbstractView {
+export default class FilmPopupCommentsView extends AbstractStatefulView {
   #film = null;
   #comments = null;
+  #localComment = null;
 
-  constructor(film, comments) {
+  constructor(film, comments, localComment) {
     super();
     this.#film = film;
     this.#comments = comments;
+    this.#localComment = localComment;
+
+    this._state = {...this.#localComment};
+
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmPopupCommentsTemplate(this.#film, this.#comments);
+    return createFilmPopupCommentsTemplate(this.#film, this.#comments, this._state);
   }
+
+  resetState = () => {
+    this.updateElement({
+      ...this.#localComment
+    });
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.film-details__emoji-list')
+      .addEventListener('click', this.#emotionClickHandler);
+    this.element.querySelector('.film-details__comment-input')
+      .addEventListener('input', this.#commentInputHandler);
+  };
+
+  #emotionClickHandler = ({target}) => {
+    if (target.tagName === 'INPUT') {
+      const commentValue = this.element.querySelector('.film-details__comment-input').value;
+
+      this.updateElement({
+        emotion: target.value,
+      });
+
+      this.element.querySelector(`#${target.id}`).checked = true;
+      this.element.querySelector('.film-details__comment-input').value = commentValue;
+    }
+  };
+
+  #commentInputHandler = ({target}) => {
+    this._setState({
+      comment: target.value,
+    });
+  };
 }
