@@ -5,6 +5,7 @@ import {
   getRandomLengthArray,
 } from '../utils/common.js';
 
+import {nanoid} from 'nanoid';
 import CommentsModel from '../model/comments-model.js';
 
 const TotalRaiting = {
@@ -100,9 +101,9 @@ const getIdOfRandomComments = () => {
   return idOfRandomComments;
 };
 
-const generateFilmCardData = (element, index) => (
+const generateFilmData = () => (
   {
-    id: index,
+    id: nanoid(),
     comments: getIdOfRandomComments(),
     filmInfo: {
       title: getRandomArrayElement(titles),
@@ -126,8 +127,12 @@ const generateFilmCardData = (element, index) => (
       isAlreadyWatched: Boolean(getRandomInteger(0, 1)),
       watchingDate: getRandomArrayElement(dates),
       isFavorite: Boolean(getRandomInteger(0, 1)),
-    }
+    },
+    localComment: {
+      comment: null,
+      emotion: null,
+    },
   }
 );
 
-export {generateFilmCardData};
+export {generateFilmData, commentsModel};

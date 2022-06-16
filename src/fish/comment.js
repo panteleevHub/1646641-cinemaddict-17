@@ -1,4 +1,5 @@
 import {getRandomArrayElement} from '../utils/common.js';
+import {nanoid} from 'nanoid';
 
 const authors = [
   'Tim Macoveev',
@@ -27,9 +28,9 @@ const dates = [
 
 const emotions = ['smile', 'sleeping', 'puke', 'angry'];
 
-const generateCommentData = (element, index) => (
+const generateCommentData = () => (
   {
-    id: index,
+    id: nanoid(),
     author: getRandomArrayElement(authors),
     comment: getRandomArrayElement(comments),
     date: getRandomArrayElement(dates),
@@ -37,9 +38,4 @@ const generateCommentData = (element, index) => (
   }
 );
 
-const localComment = {
-  'comment': null,
-  'emotion': null,
-};
-
-export {generateCommentData, localComment};
+export {generateCommentData};

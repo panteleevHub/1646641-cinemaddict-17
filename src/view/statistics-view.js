@@ -7,14 +7,14 @@ const createStatisticsTemplate = (films) => {
 };
 
 export default class StatisticsView extends AbstractView {
-  #filmCards = null;
+  #films = null;
 
   constructor(films) {
     super();
-    this.#filmCards = films;
+    this.#films = films;
   }
 
   get template() {
-    return createStatisticsTemplate(this.#filmCards);
+    return createStatisticsTemplate(this.#films);
   }
 }

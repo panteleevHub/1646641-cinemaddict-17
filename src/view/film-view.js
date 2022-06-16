@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {convertReleaseYear, convertMinsToHours} from '../utils/date.js';
 
-const createFilmCardTemplate = ({filmInfo, comments, userDetails}) => {
+const createFilmTemplate = ({filmInfo, comments, userDetails}) => {
   const {title, poster, totalRating, genres, description, release, runtime} = filmInfo;
   const {isWatchlist, isAlreadyWatched, isFavorite} = userDetails;
 
@@ -43,7 +43,7 @@ const createFilmCardTemplate = ({filmInfo, comments, userDetails}) => {
   );
 };
 
-export default class FilmCardView extends AbstractView {
+export default class FilmView extends AbstractView {
   #film = null;
 
   constructor(film) {
@@ -52,10 +52,10 @@ export default class FilmCardView extends AbstractView {
   }
 
   get template() {
-    return createFilmCardTemplate(this.#film);
+    return createFilmTemplate(this.#film);
   }
 
-  setFilmCardClickHandler = (callback) => {
+  setFilmClickHandler = (callback) => {
     this._callback.cardClick = callback;
 
     this.element.querySelector('.film-card__link').addEventListener('click', this.#flmCardClickHandler);
