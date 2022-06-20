@@ -4,10 +4,10 @@ const Mode = {
 };
 
 const FilterType = {
-  ALL: 'All',
-  WATCHLIST: 'Watchlist',
-  HISTORY: 'History',
-  FAVORITES: 'Favorites',
+  ALL: 'all',
+  WATCHLIST: 'watchlist',
+  HISTORY: 'history',
+  FAVORITES: 'favorites',
 };
 
 const UserRank = {
@@ -31,6 +31,7 @@ const UserAction = {
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
+  UPDATE_POPUP: 'UPDATE_POPUP',
   MAJOR: 'MAJOR',
 };
 

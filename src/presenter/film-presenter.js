@@ -11,30 +11,31 @@ export default class FilmPresenter {
   #film = null;
   #changeData = null;
   #changeMode = null;
-  #comments = null;
+  #commentsModel = null;
 
   #mode = Mode.DEFAULT;
 
-  constructor(container, changeData, changeMode) {
+  constructor(container, changeData, changeMode, commentsModel) {
     this.#filmContainer = container;
     this.#changeData = changeData;
     this.#changeMode = changeMode;
+    this.#commentsModel = commentsModel;
   }
 
-  init = (film, comments) => {
+  init = (film) => {
     const prevFilmComponent = this.#filmComponent;
     const prevPopupComponent = this.#filmPopupComponent;
 
     this.#film = film;
-    this.#comments = comments;
+    const comments = this.#currentFilmComments(this.#film);
 
     this.#filmComponent = new FilmView(this.#film);
     this.#filmPopupComponent = new FilmPopupView(
       this.#film,
-      this.#comments,
+      comments,
     );
 
-    this.#filmComponent.setFilmClickHandler(this.#openFilmPopup);
+    this.#filmComponent.setFilmClickHandler(this.openFilmPopup);
     this.#filmComponent.setWatchlistButtonClickHandler(this.#watchlistButtonClickHandler);
     this.#filmComponent.setHistoryButtonClickHandler(this.#historyButtonClickHandler);
     this.#filmComponent.setFavoriteButtonClickHandler(this.#favoriteButtonClickHandler);
@@ -65,6 +66,7 @@ export default class FilmPresenter {
 
   destroy = () => {
     remove(this.#filmComponent);
+    remove(this.#filmPopupComponent);
   };
 
   resetView = () => {
@@ -73,7 +75,7 @@ export default class FilmPresenter {
     }
   };
 
-  #openFilmPopup = () => {
+  openFilmPopup = () => {
     this.#changeMode();
     this.#filmPopupComponent.openPopup();
 
@@ -90,6 +92,14 @@ export default class FilmPresenter {
     this.#mode = Mode.DEFAULT;
   };
 
+  #currentFilmComments = (film) => {
+    const filmComments = film.comments.map((commentId) => (
+      this.#commentsModel.comments.find((comment) => commentId === comment.id)
+    ));
+
+    return filmComments;
+  };
+
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
@@ -100,7 +110,7 @@ export default class FilmPresenter {
   #watchlistButtonClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      this.#mode === Mode.POPUP ? UpdateType.UPDATE_POPUP : UpdateType.MINOR,
       {
         ...this.#film,
         userDetails: {
@@ -114,28 +124,28 @@ export default class FilmPresenter {
   #historyButtonClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      this.#mode === Mode.POPUP ? UpdateType.UPDATE_POPUP : UpdateType.MINOR,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           isAlreadyWatched: !this.#film.userDetails.isAlreadyWatched,
         },
-      }
+      },
     );
   };
 
   #favoriteButtonClickHandler = () => {
     this.#changeData(
       UserAction.UPDATE_FILM,
-      UpdateType.PATCH,
+      this.#mode === Mode.POPUP ? UpdateType.UPDATE_POPUP : UpdateType.MINOR,
       {
         ...this.#film,
         userDetails: {
           ...this.#film.userDetails,
           isFavorite: !this.#film.userDetails.isFavorite,
         },
-      }
+      },
     );
   };
 

@@ -2,6 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {convertMinsToHours, convertReleaseDate} from '../utils/date.js';
 import {humanizeDate} from '../utils/date.js';
 import {nanoid} from 'nanoid';
+import he from 'he';
 
 const body = document.body;
 
@@ -42,7 +43,7 @@ const createFilmPopupTemplate = ({filmInfo, userDetails, comments, localComment}
     ? `<img src="./images/emoji/${localComment.emotion}.png" width="55" height="55" alt="emoji">`
     : '';
 
-  const commentValue = localComment.comment !== null ? `${localComment.comment}` : '';
+  const commentValue = localComment.comment !== null ? `${he.encode(localComment.comment)}` : '';
 
   const createListOfComments = () => {
     const filmComments = comments.map((commentId) => {
@@ -56,7 +57,7 @@ const createFilmPopupTemplate = ({filmInfo, userDetails, comments, localComment}
             <img src="./images/emoji/${userComment.emotion}.png" width="55" height="55" alt="emoji-${userComment.emotion}">
           </span>
           <div>
-            <p class="film-details__comment-text">${userComment.comment}</p>
+            <p class="film-details__comment-text">${he.encode(userComment.comment)}</p>
             <p class="film-details__comment-info">
               <span class="film-details__comment-author">${userComment.author}</span>
               <span class="film-details__comment-day">${humanizedDate}</span>
@@ -221,10 +222,10 @@ export default class FilmPopupView extends AbstractStatefulView {
 
   closePopup = () => {
     body.classList.remove('hide-overflow');
-    body.removeChild(body.querySelector('.film-details'));
+    this.element.remove();
   };
 
-  setScrollPosition = (scrollPosition) => {
+  #setScrollPosition = (scrollPosition) => {
     document.querySelector('.film-details').scrollTop = scrollPosition;
   };
 
@@ -307,21 +308,21 @@ export default class FilmPopupView extends AbstractStatefulView {
     const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.watchlistPopupClick();
-    this.setScrollPosition(scrollPosition);
+    this.#setScrollPosition(scrollPosition);
   };
 
   #historyButtonClickHandler = (evt) => {
     const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.historyPopupClick();
-    this.setScrollPosition(scrollPosition);
+    this.#setScrollPosition(scrollPosition);
   };
 
   #favoriteButtonClickHandler = (evt) => {
     const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.favoritePopupClick();
-    this.setScrollPosition(scrollPosition);
+    this.#setScrollPosition(scrollPosition);
   };
 
   #emotionClickHandler = ({target}) => {
@@ -335,7 +336,7 @@ export default class FilmPopupView extends AbstractStatefulView {
         },
       });
 
-      this.setScrollPosition(scrollPosition);
+      this.#setScrollPosition(scrollPosition);
     }
   };
 
@@ -367,7 +368,7 @@ export default class FilmPopupView extends AbstractStatefulView {
         selectedComment,
       );
 
-      this.setScrollPosition(scrollPosition);
+      this.#setScrollPosition(scrollPosition);
     }
   };
 
@@ -378,6 +379,7 @@ export default class FilmPopupView extends AbstractStatefulView {
 
       this._state.comments.push(nanoid());
       const newCommentData = createNewCommentData(this._state);
+
       this._setState({
         localComment: {
           comment: null,
@@ -385,8 +387,12 @@ export default class FilmPopupView extends AbstractStatefulView {
         }
       });
 
-      this._callback.formSubmit(this.#convertStateToFilm(this._state), newCommentData);
-      this.setScrollPosition(scrollPosition);
+      this._callback.formSubmit(
+        this.#convertStateToFilm(this._state),
+        newCommentData
+      );
+
+      this.#setScrollPosition(scrollPosition);
     }
   };
 }

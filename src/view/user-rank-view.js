@@ -6,7 +6,7 @@ import {
 } from '../utils/const.js';
 
 const createUserRankTemplate = (filters) => {
-  const filterHistory = filters.find((filter) => filter.name === FilterType.HISTORY);
+  const filterHistory = filters.find((filter) => filter.type === FilterType.HISTORY);
 
   let userRank = '';
 

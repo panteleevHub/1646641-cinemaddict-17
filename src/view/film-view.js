@@ -1,12 +1,19 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {convertReleaseYear, convertMinsToHours} from '../utils/date.js';
 
+const DESCRIPTION_LENGTH = 139;
+const MAX_DESCRIPTION_LENGTH = 140;
+
 const createFilmTemplate = ({filmInfo, comments, userDetails}) => {
   const {title, poster, totalRating, genres, description, release, runtime} = filmInfo;
   const {isWatchlist, isAlreadyWatched, isFavorite} = userDetails;
 
   const releaseYear = convertReleaseYear(release.date);
   const filmRuntime = convertMinsToHours(runtime);
+
+  const isDescriptionLong = description.length > MAX_DESCRIPTION_LENGTH;
+
+  const cutDescription = () => `${description.slice(0, DESCRIPTION_LENGTH)}...`;
 
   const watchlistClassName = isWatchlist
     ? 'film-card__controls-item--add-to-watchlist film-card__controls-item--active'
@@ -31,7 +38,7 @@ const createFilmTemplate = ({filmInfo, comments, userDetails}) => {
           <span class="film-card__genre">${genres[0]}</span>
         </p>
         <img src="${poster}" alt="" class="film-card__poster">
-        <p class="film-card__description">${description}</p>
+        <p class="film-card__description">${isDescriptionLong ? cutDescription() : description}</p>
         <span class="film-card__comments">${comments.length} comments</span>
       </a>
       <div class="film-card__controls">
