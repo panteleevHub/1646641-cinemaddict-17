@@ -1,9 +1,12 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {FilterType} from '../utils/filter.js';
-import {UserRank, NumberOfViewedFilms} from '../utils/user-rank.js';
+import {
+  UserRank,
+  NumberOfViewedFilms,
+  FilterType,
+} from '../utils/const.js';
 
 const createUserRankTemplate = (filters) => {
-  const filterHistory = filters.find((filter) => filter.name === FilterType.HISTORY);
+  const filterHistory = filters.find((filter) => filter.type === FilterType.HISTORY);
 
   let userRank = '';
 
