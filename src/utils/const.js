@@ -3,11 +3,25 @@ const Mode = {
   POPUP: 'popup',
 };
 
+const Method = {
+  GET: 'GET',
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
+};
+
 const FilterType = {
-  ALL: 'all',
-  WATCHLIST: 'watchlist',
-  HISTORY: 'history',
-  FAVORITES: 'favorites',
+  ALL: 'ALL',
+  WATCHLIST: 'WATCHLIST',
+  HISTORY: 'HISTORY',
+  FAVORITES: 'FAVORITES',
+};
+
+const FilterName = {
+  ALL: 'All movies',
+  WATCHLIST: 'Watchlist',
+  HISTORY: 'History',
+  FAVORITES: 'Favorites',
 };
 
 const UserRank = {
@@ -33,13 +47,16 @@ const UpdateType = {
   MINOR: 'MINOR',
   UPDATE_POPUP: 'UPDATE_POPUP',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
 export {
   UserRank,
   NumberOfViewedFilms,
   FilterType,
+  FilterName,
   UserAction,
   UpdateType,
   Mode,
+  Method,
 };

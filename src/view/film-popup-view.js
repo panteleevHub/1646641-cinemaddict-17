@@ -1,15 +1,16 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {convertMinsToHours, convertReleaseDate} from '../utils/date.js';
 import {humanizeDate} from '../utils/date.js';
-import {nanoid} from 'nanoid';
 import he from 'he';
 
 const body = document.body;
 
-const createFilmPopupTemplate = ({filmInfo, userDetails, comments, localComment}, commentsList) => {
+const createFilmPopupTemplate = (
+  {filmInfo, userDetails, comments, localComment, isDisabled, isDeleting}, commentsList) => {
+
   const {
     title, poster, totalRating, genres, description,
-    release, runtime, ageRating, originalTitle, director,
+    release, runtime, ageRating, alternativeTitle, director,
     writers, actors
   } = filmInfo;
 
@@ -46,22 +47,22 @@ const createFilmPopupTemplate = ({filmInfo, userDetails, comments, localComment}
   const commentValue = localComment.comment !== null ? `${he.encode(localComment.comment)}` : '';
 
   const createListOfComments = () => {
-    const filmComments = comments.map((commentId) => {
-
-      const userComment = commentsList.find((elem) => elem.id === commentId);
-      const humanizedDate = humanizeDate(userComment.date);
+    const filmComments = commentsList.map((commentItem) => {
+      const humanizedDate = humanizeDate(commentItem.date);
 
       return (
-        `<li class="film-details__comment" data-comment-id="${userComment.id}">
+        `<li class="film-details__comment" data-comment-id="${commentItem.id}">
           <span class="film-details__comment-emoji">
-            <img src="./images/emoji/${userComment.emotion}.png" width="55" height="55" alt="emoji-${userComment.emotion}">
+            <img src="./images/emoji/${commentItem.emotion}.png" width="55" height="55" alt="emoji-${commentItem.emotion}">
           </span>
           <div>
-            <p class="film-details__comment-text">${he.encode(userComment.comment)}</p>
+            <p class="film-details__comment-text">${he.encode(commentItem.comment)}</p>
             <p class="film-details__comment-info">
-              <span class="film-details__comment-author">${userComment.author}</span>
+              <span class="film-details__comment-author">${commentItem.author}</span>
               <span class="film-details__comment-day">${humanizedDate}</span>
-              <button class="film-details__comment-delete">Delete</button>
+              <button class="film-details__comment-delete" ${isDeleting ? 'disabled' : ''}>
+              ${isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
             </p>
           </div>
         </li>`
@@ -73,7 +74,7 @@ const createFilmPopupTemplate = ({filmInfo, userDetails, comments, localComment}
 
   return (
     `<section class="film-details">
-      <form class="film-details__inner" action="" method="get">
+      <form class="film-details__inner" action="" method="get" ${isDisabled ? 'disabled' : ''}>
         <div class="film-details__top-container">
           <div class="film-details__close">
             <button class="film-details__close-btn" type="button">close</button>
@@ -89,7 +90,7 @@ const createFilmPopupTemplate = ({filmInfo, userDetails, comments, localComment}
               <div class="film-details__info-head">
                 <div class="film-details__title-wrap">
                   <h3 class="film-details__title">${title}</h3>
-                  <p class="film-details__title-original">Original: ${originalTitle}</p>
+                  <p class="film-details__title-original">Original: ${alternativeTitle}</p>
                 </div>
 
                 <div class="film-details__rating">
@@ -182,11 +183,8 @@ const createFilmPopupTemplate = ({filmInfo, userDetails, comments, localComment}
   );
 };
 
-const createNewCommentData = ({comments, localComment}) => ({
-  id: comments[comments.length - 1],
-  author: 'Stranger',
+const createNewComment = ({localComment}) => ({
   comment: localComment.comment,
-  date: '2022-05-03T08:12:32.554Z',
   emotion: localComment.emotion,
 });
 
@@ -223,10 +221,6 @@ export default class FilmPopupView extends AbstractStatefulView {
   closePopup = () => {
     body.classList.remove('hide-overflow');
     this.element.remove();
-  };
-
-  #setScrollPosition = (scrollPosition) => {
-    document.querySelector('.film-details').scrollTop = scrollPosition;
   };
 
   setClosePopupClickHandler = (callback) => {
@@ -286,11 +280,18 @@ export default class FilmPopupView extends AbstractStatefulView {
 
   #convertFilmToState = (film) => ({
     ...film,
+    isDisabled: false,
+    isDeleting: false,
   });
 
-  #convertStateToFilm = (state) => ({
-    ...state
-  });
+  #convertStateToFilm = (state) => {
+    const film = {...state};
+
+    delete film.isDisabled;
+    delete film.isDeleting;
+
+    return film;
+  };
 
   #setInnerHandlers = () => {
     this.element.querySelector('.film-details__emoji-list')
@@ -305,24 +306,18 @@ export default class FilmPopupView extends AbstractStatefulView {
   };
 
   #watchlistButtonClickHandler = (evt) => {
-    const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.watchlistPopupClick();
-    this.#setScrollPosition(scrollPosition);
   };
 
   #historyButtonClickHandler = (evt) => {
-    const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.historyPopupClick();
-    this.#setScrollPosition(scrollPosition);
   };
 
   #favoriteButtonClickHandler = (evt) => {
-    const scrollPosition = this.element.scrollTop;
     evt.preventDefault();
     this._callback.favoritePopupClick();
-    this.#setScrollPosition(scrollPosition);
   };
 
   #emotionClickHandler = ({target}) => {
@@ -336,7 +331,7 @@ export default class FilmPopupView extends AbstractStatefulView {
         },
       });
 
-      this.#setScrollPosition(scrollPosition);
+      this.element.scrollTop = scrollPosition;
     }
   };
 
@@ -352,47 +347,27 @@ export default class FilmPopupView extends AbstractStatefulView {
   #deleteCommentClickHandler = (evt) => {
     if (evt.target.tagName === 'BUTTON') {
       evt.preventDefault();
-      const scrollPosition = this.element.scrollTop;
       const selectedCommentId = evt.target.closest('.film-details__comment').dataset.commentId;
 
       const selectedComment = this.#comments
         .find((comment) => comment.id === selectedCommentId);
 
-      const commentIdToDelete = this._state.comments
-        .indexOf(selectedCommentId);
-
-      this._state.comments.splice(commentIdToDelete, 1);
-
       this._callback.deleteCommentClick(
         this.#convertStateToFilm(this._state),
         selectedComment,
       );
-
-      this.#setScrollPosition(scrollPosition);
     }
   };
 
   #formSubmitHandler = (evt) => {
     if (evt.key === 'Enter' && (evt.ctrlKey || evt.metaKey)) {
       evt.preventDefault();
-      const scrollPosition = this.element.scrollTop;
-
-      this._state.comments.push(nanoid());
-      const newCommentData = createNewCommentData(this._state);
-
-      this._setState({
-        localComment: {
-          comment: null,
-          emotion: null,
-        }
-      });
+      const newComment = createNewComment(this._state);
 
       this._callback.formSubmit(
         this.#convertStateToFilm(this._state),
-        newCommentData
+        newComment
       );
-
-      this.#setScrollPosition(scrollPosition);
     }
   };
 }

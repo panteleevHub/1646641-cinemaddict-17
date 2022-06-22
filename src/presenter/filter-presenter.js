@@ -1,7 +1,7 @@
 import {render, replace, remove} from '../framework/render.js';
 import FilterView from '../view/filter-view.js';
 import {filter} from '../utils/filter.js';
-import {FilterType, UpdateType} from '../utils/const.js';
+import {FilterType, FilterName, UpdateType} from '../utils/const.js';
 
 export default class FilterPresenter {
   #filterContainer = null;
@@ -25,22 +25,22 @@ export default class FilterPresenter {
     return [
       {
         type: FilterType.ALL,
-        name: 'All movies',
+        name: FilterName.ALL,
         count: films.length,
       },
       {
         type: FilterType.WATCHLIST,
-        name: 'Watchlist',
+        name: FilterName.WATCHLIST,
         count: filter[FilterType.WATCHLIST](films).length,
       },
       {
         type: FilterType.HISTORY,
-        name: 'History',
+        name: FilterName.HISTORY,
         count: filter[FilterType.HISTORY](films).length,
       },
       {
         type: FilterType.FAVORITES,
-        name: 'Favorites',
+        name: FilterName.FAVORITES,
         count: filter[FilterType.FAVORITES](films).length,
       },
     ];

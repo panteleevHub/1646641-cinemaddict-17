@@ -24,28 +24,14 @@ export default class FilmPresenter {
 
   init = (film) => {
     const prevFilmComponent = this.#filmComponent;
-    const prevPopupComponent = this.#filmPopupComponent;
 
     this.#film = film;
-    const comments = this.#currentFilmComments(this.#film);
-
     this.#filmComponent = new FilmView(this.#film);
-    this.#filmPopupComponent = new FilmPopupView(
-      this.#film,
-      comments,
-    );
 
     this.#filmComponent.setFilmClickHandler(this.openFilmPopup);
     this.#filmComponent.setWatchlistButtonClickHandler(this.#watchlistButtonClickHandler);
     this.#filmComponent.setHistoryButtonClickHandler(this.#historyButtonClickHandler);
     this.#filmComponent.setFavoriteButtonClickHandler(this.#favoriteButtonClickHandler);
-
-    this.#filmPopupComponent.setClosePopupClickHandler(this.#closeFilmPopup);
-    this.#filmPopupComponent.setWatchlistButtonClickHandler(this.#watchlistButtonClickHandler);
-    this.#filmPopupComponent.setHistoryButtonClickHandler(this.#historyButtonClickHandler);
-    this.#filmPopupComponent.setFavoriteButtonClickHandler(this.#favoriteButtonClickHandler);
-    this.#filmPopupComponent.setDeleteCommentClickHandler(this.#deleteCommentClickHandler);
-    this.#filmPopupComponent.setFormSubmitHandler(this.#formSubmitHandler);
 
     if (prevFilmComponent === null) {
       return render(this.#filmComponent, this.#filmContainer);
@@ -55,13 +41,7 @@ export default class FilmPresenter {
       replace(this.#filmComponent, prevFilmComponent);
     }
 
-    if (this.#mode === Mode.POPUP) {
-      replace(this.#filmComponent, prevFilmComponent);
-      replace(this.#filmPopupComponent, prevPopupComponent);
-    }
-
     remove(prevFilmComponent);
-    remove(prevPopupComponent);
   };
 
   destroy = () => {
@@ -75,7 +55,21 @@ export default class FilmPresenter {
     }
   };
 
-  openFilmPopup = () => {
+  openFilmPopup = async () => {
+    await this.#commentsModel.getComments(this.#film);
+
+    this.#filmPopupComponent = new FilmPopupView(
+      this.#film,
+      this.#commentsModel.comments,
+    );
+
+    this.#filmPopupComponent.setClosePopupClickHandler(this.#closeFilmPopup);
+    this.#filmPopupComponent.setWatchlistButtonClickHandler(this.#watchlistButtonClickHandler);
+    this.#filmPopupComponent.setHistoryButtonClickHandler(this.#historyButtonClickHandler);
+    this.#filmPopupComponent.setFavoriteButtonClickHandler(this.#favoriteButtonClickHandler);
+    this.#filmPopupComponent.setDeleteCommentClickHandler(this.#deleteCommentClickHandler);
+    this.#filmPopupComponent.setFormSubmitHandler(this.#formSubmitHandler);
+
     this.#changeMode();
     this.#filmPopupComponent.openPopup();
 
@@ -84,20 +78,41 @@ export default class FilmPresenter {
     this.#mode = Mode.POPUP;
   };
 
+  setDeleting = () => {
+    if (this.#mode === Mode.POPUP) {
+      this.#filmPopupComponent.updateElement({
+        isDeleting: true,
+      });
+    }
+  };
+
+  setFormDisable = () => {
+    if (this.#mode === Mode.POPUP) {
+      this.#filmPopupComponent.updateElement({
+        isDisabled: true,
+      });
+    }
+  };
+
+  setAborting = () => {
+    if (this.#mode === Mode.POPUP) {
+      const resetFormState = () => {
+        this.#filmPopupComponent.updateElement({
+          isDisabled: false,
+          isDeleting: false,
+        });
+      };
+
+      this.#filmPopupComponent.shake(resetFormState);
+    }
+  };
+
   #closeFilmPopup = () => {
     this.#filmPopupComponent.resetState(this.#film);
 
     this.#filmPopupComponent.closePopup();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
-  };
-
-  #currentFilmComments = (film) => {
-    const filmComments = film.comments.map((commentId) => (
-      this.#commentsModel.comments.find((comment) => commentId === comment.id)
-    ));
-
-    return filmComments;
   };
 
   #escKeyDownHandler = (evt) => {
@@ -152,7 +167,7 @@ export default class FilmPresenter {
   #deleteCommentClickHandler = (film, comment) => {
     this.#changeData(
       UserAction.DELETE_COMMENT,
-      UpdateType.PATCH,
+      UpdateType.UPDATE_POPUP,
       film,
       comment
     );
@@ -161,7 +176,7 @@ export default class FilmPresenter {
   #formSubmitHandler = (film, comment) => {
     this.#changeData(
       UserAction.ADD_COMMENT,
-      UpdateType.PATCH,
+      UpdateType.UPDATE_POPUP,
       film,
       comment
     );

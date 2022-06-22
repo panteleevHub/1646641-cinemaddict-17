@@ -1,36 +1,62 @@
-import {generateCommentData} from '../fish/comment.js';
 import Observable from '../framework/observable.js';
 
-const COMMENTS_COUNT = 1000;
-
 export default class CommentsModel extends Observable {
-  #comments = Array.from({length: COMMENTS_COUNT}, generateCommentData);
+  #commentsApiService = null;
+  #comments = [];
+
+  constructor(commentsApiService) {
+    super();
+    this.#commentsApiService = commentsApiService;
+  }
 
   get comments() {
     return this.#comments;
   }
 
-  addComment = (updateType, update) => {
-    this.#comments = [
-      update,
-      ...this.#comments,
-    ];
-
-    this._notify(updateType, update);
+  getComments = async (film) => {
+    try {
+      const comments = await this.#commentsApiService.getComments(film);
+      this.#comments = [...comments];
+    } catch (error) {
+      this.#comments = [];
+    }
   };
 
-  deleteComment = (updateType, update) => {
+  addComment = async (updateType, comment, film) => {
+    try {
+      const response = await this.#commentsApiService.addComment(comment, film);
+      const newComment = this.#adaptToClient(response);
+      this.#comments = [newComment, ...this.#comments];
+    } catch(err) {
+      throw new Error('Can\'t add comment');
+    }
+  };
+
+  deleteComment = async (updateType, update) => {
     const index = this.#comments.findIndex((comment) => comment.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t delete unexisting comment');
     }
 
-    this.#comments = [
-      ...this.#comments.slice(0, index),
-      ...this.#comments.slice(index + 1),
-    ];
+    try {
+      await this.#commentsApiService.deleteComment(update);
 
-    this._notify(updateType);
+      this.#comments = [
+        ...this.#comments.slice(0, index),
+        ...this.#comments.slice(index + 1),
+      ];
+
+    } catch(err) {
+      throw new Error('Can\'t delete comment');
+    }
+  };
+
+  #adaptToClient = (comment) => {
+    const adaptedComment = {...comment};
+
+    delete adaptedComment.movie;
+    delete adaptedComment.comments;
+    return adaptedComment;
   };
 }
