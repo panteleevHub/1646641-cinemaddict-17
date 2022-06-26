@@ -3,6 +3,7 @@ import FilmView from '../view/film-view.js';
 import FilmPopupView from '../view/film-popup-view.js';
 import {UserAction, UpdateType} from '../utils/const.js';
 import {Mode} from '../utils/const.js';
+import {isInPage} from '../utils/common.js';
 
 export default class FilmPresenter {
   #filmComponent = null;
@@ -50,12 +51,16 @@ export default class FilmPresenter {
   };
 
   resetView = () => {
-    if (this.#mode !== Mode.DEFAULT) {
+    if (this.#mode === Mode.POPUP) {
       this.#closeFilmPopup();
     }
   };
 
   openFilmPopup = async () => {
+    if (this.#filmPopupComponent !== null && isInPage(this.#filmPopupComponent.element)) {
+      return;
+    }
+
     await this.#commentsModel.getComments(this.#film);
 
     this.#filmPopupComponent = new FilmPopupView(
@@ -78,20 +83,17 @@ export default class FilmPresenter {
     this.#mode = Mode.POPUP;
   };
 
-  setDeleting = () => {
-    if (this.#mode === Mode.POPUP) {
-      this.#filmPopupComponent.updateElement({
-        isDeleting: true,
-      });
-    }
+  setDeleting = (comment) => {
+    this.#filmPopupComponent.updateElement({
+      isDeleting: true,
+      selectedComment: comment.id
+    });
   };
 
   setFormDisable = () => {
-    if (this.#mode === Mode.POPUP) {
-      this.#filmPopupComponent.updateElement({
-        isDisabled: true,
-      });
-    }
+    this.#filmPopupComponent.updateElement({
+      isDisabled: true,
+    });
   };
 
   setAborting = () => {

@@ -106,11 +106,12 @@ export default class BoardPresenter {
       return this.#renderLoading();
     }
 
+    this.#renderUserRank();
+
     if (this.films.length === 0) {
       return this.#renderEmptyFilmsList();
     }
 
-    this.#renderUserRank();
     this.#renderSort();
     this.#renderFilmsContainer();
   };
@@ -138,46 +139,55 @@ export default class BoardPresenter {
   };
 
   #handleViewAction = async (actionType, updateType, film, comment) => {
+    this.#uiBlocker.block();
+
     switch (actionType) {
       case UserAction.UPDATE_FILM:
         try {
           await this.#filmsModel.updateFilm(updateType, film);
         } catch (error) {
           this.#filmsPresenters.get(film.id).setAborting();
+          this.#uiBlocker.unblock();
         }
         break;
       case UserAction.ADD_COMMENT:
-        this.#uiBlocker.block();
-        this.#filmsPresenters.get(film.id).setFormDisable();
-        try {
-          await this.#commentsModel.addComment(updateType, comment, film);
-          await this.#filmsModel.updateFilm(updateType, film);
-        } catch (error) {
+        if (film.localComment.emotion !== null && film.localComment.comment !== null) {
+          this.#filmsPresenters.get(film.id).setFormDisable();
+          try {
+            await this.#commentsModel.addComment(updateType, comment, film);
+            await this.#filmsModel.updateFilm(updateType, film);
+          } catch (error) {
+            this.#filmsPresenters.get(film.id).setAborting();
+            this.#uiBlocker.unblock();
+          }
+        } else {
           this.#filmsPresenters.get(film.id).setAborting();
+          this.#uiBlocker.unblock();
         }
         break;
       case UserAction.DELETE_COMMENT:
-        this.#filmsPresenters.get(film.id).setDeleting();
+        this.#filmsPresenters.get(film.id).setDeleting(comment);
         try {
           await this.#commentsModel.deleteComment(updateType, comment);
           await this.#filmsModel.updateFilm(updateType, film);
         } catch (error) {
           this.#filmsPresenters.get(film.id).setAborting();
+          this.#uiBlocker.unblock();
         }
         break;
     }
-
-    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = async (updateType, data) => {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#filmsPresenters.get(data.id).init(data);
+        this.#uiBlocker.unblock();
         break;
       case UpdateType.MINOR:
         this.#clearBoard();
         this.#renderBoard();
+        this.#uiBlocker.unblock();
         break;
       case UpdateType.UPDATE_POPUP:
         this.#prevPresenter = this.#filmsPresenters.get(data.id);
@@ -185,10 +195,12 @@ export default class BoardPresenter {
         this.#renderBoard();
         if (this.#filmsPresenters.has(data.id)) {
           await this.#filmsPresenters.get(data.id).openFilmPopup();
+          this.#uiBlocker.unblock();
         } else {
           this.#filmsPresenters.set(data.id, this.#prevPresenter);
           this.#filmsPresenters.get(data.id).init(data);
-          await this.#prevPresenter.openFilmPopup();
+          await this.#filmsPresenters.get(data.id).openFilmPopup();
+          this.#uiBlocker.unblock();
         }
         break;
       case UpdateType.MAJOR:
@@ -240,7 +252,7 @@ export default class BoardPresenter {
 
     render(this.#filmsListComponent, this.#filmsListContainerComponent.element);
 
-    this.#renderFilms(films);
+    this.#renderFilms(films, this.#filmsListComponent.element);
 
     if (filmsCount >  this.#renderedFilmsCount) {
       this.#renderShowMoreButton();
@@ -280,7 +292,7 @@ export default class BoardPresenter {
     const newRenderedFilmsCount = Math.min(filmsCount, this.#renderedFilmsCount + FILMS_COUNT_PER_STEP);
     const films = this.films.slice(this.#renderedFilmsCount, newRenderedFilmsCount);
 
-    this.#renderFilms(films, this.#filmsListComponent.element);
+    this.#renderFilms(films);
     this.#renderedFilmsCount = newRenderedFilmsCount;
 
     if (this.#renderedFilmsCount >= filmsCount) {

@@ -28,6 +28,6 @@ const boardPresenter = new BoardPresenter(
   filterPresenter
 );
 
-boardPresenter.init();
 filterPresenter.init();
+boardPresenter.init();
 filmsModel.init();

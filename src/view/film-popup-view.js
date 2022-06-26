@@ -6,7 +6,7 @@ import he from 'he';
 const body = document.body;
 
 const createFilmPopupTemplate = (
-  {filmInfo, userDetails, comments, localComment, isDisabled, isDeleting}, commentsList) => {
+  {filmInfo, userDetails, comments, localComment, isDisabled, isDeleting, selectedComment}, commentsList) => {
 
   const {
     title, poster, totalRating, genres, description,
@@ -60,9 +60,9 @@ const createFilmPopupTemplate = (
             <p class="film-details__comment-info">
               <span class="film-details__comment-author">${commentItem.author}</span>
               <span class="film-details__comment-day">${humanizedDate}</span>
-              <button class="film-details__comment-delete" ${isDeleting ? 'disabled' : ''}>
-              ${isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
+
+              ${selectedComment === commentItem.id ? `<button class="film-details__comment-delete" ${isDeleting ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>` : '<button class="film-details__comment-delete">Delete</button>'}
+
             </p>
           </div>
         </li>`
@@ -282,6 +282,7 @@ export default class FilmPopupView extends AbstractStatefulView {
     ...film,
     isDisabled: false,
     isDeleting: false,
+    selectedComment: null,
   });
 
   #convertStateToFilm = (state) => {
@@ -289,6 +290,7 @@ export default class FilmPopupView extends AbstractStatefulView {
 
     delete film.isDisabled;
     delete film.isDeleting;
+    delete film.selectedComment;
 
     return film;
   };
